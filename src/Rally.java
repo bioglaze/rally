@@ -2,12 +2,12 @@
   Rally - A simple rally game
 
   @author Timo Wiren
-  @date 2014-12-10
+  @date 2014-12-13
  
   Uses OpenGL 4.1, so make sure your driver can handle it.
 
   Compilation:
-  javac -cp lwjgl/jar/lwjgl.jar:./PNGDecoder.jar Rally.java Texture.java
+  javac -cp lwjgl/jar/lwjgl.jar:./PNGDecoder.jar Rally.java Texture.java Shader.java
  
   Running (OS X):
   java -cp .:res:lwjgl/jar/lwjgl.jar:PNGDecoder.jar -Djava.library.path=./lwjgl/native/macosx/x64 Rally
@@ -17,19 +17,98 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
  
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.io.IOException;
 
+import org.lwjgl.BufferUtils;
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.*;
- 
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL30.*;
+
 public class Rally
 { 
     private GLFWErrorCallback errorCallback;
     private GLFWKeyCallback keyCallback;
- 
+    private int width = 640;
+    private int height = 480;
     private long window;
- 
+
+    // List<String> lines = Files.readAllLines(Paths.get(path), encoding);
+    
+    public static String readFile( String path ) throws IOException
+    {
+        byte[] encoded = Files.readAllBytes( Paths.get( path ) );
+        return new String( encoded, StandardCharsets.UTF_8 );
+    }
+
+    public void checkGLError( String info )
+    {
+        int errorCode = GL_INVALID_ENUM;
+        
+        while ((errorCode = glGetError()) != GL_NO_ERROR)
+        {
+            String errorStr = "unstringified error";
+            
+            if (errorCode == GL_INVALID_ENUM)
+            {
+                errorStr = "GL_INVALID_ENUM";
+            }
+            else if (errorCode == GL_INVALID_VALUE)
+            {
+                errorStr = "GL_INVALID_VALUE";
+            }
+            else if (errorCode == GL_INVALID_OPERATION)
+            {
+                errorStr = "GL_INVALID_OPERATION";
+            }
+
+            System.out.println( "OpenGL error in " + info + ": " + errorStr );
+        }
+    }
+
+    private void GenerateQuadBuffers()
+    {
+        int vao = glGenVertexArrays();
+        glBindVertexArray( vao );
+        
+        float[] quad = new float[] { 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1 };
+        FloatBuffer positionBuffer = BufferUtils.createFloatBuffer( quad.length );
+        positionBuffer.put( quad );
+        positionBuffer.flip();
+        
+        int vbo = glGenBuffers();
+        glBindBuffer( GL_ARRAY_BUFFER, vbo );
+        glBufferData( GL_ARRAY_BUFFER, positionBuffer, GL_STATIC_DRAW );
+        glEnableVertexAttribArray( 0 );
+        glVertexAttribPointer( 0, 2, GL_FLOAT, false, 0, 0 );
+        checkGLError( "GenerateQuadBuffers end" );
+    }
+
+    float[] makeProjectionMatrix( float left, float right, float bottom, float top, float nearDepth, float farDepth )
+    {
+        float tx = -((right + left) / (right - left));
+        float ty = -((top + bottom) / (top - bottom));
+        float tz = -((farDepth + nearDepth) / (farDepth - nearDepth));
+        
+        float[] matrix = new float[]
+        {
+         2.0f / (right - left), 0.0f, 0.0f, 0.0f,
+         0.0f, 2.0f / (top - bottom), 0.0f, 0.0f,
+         0.0f, 0.0f, -2.0f / (farDepth - nearDepth), 0.0f,
+         tx, ty, tz, 1.0f
+        };
+        
+        return matrix;
+    }
+
     public void run()
     {
         System.out.println("LWJGL " + Sys.getVersion());
@@ -67,12 +146,9 @@ public class Rally
         glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE );
         glfwWindowHint( GLFW_VISIBLE, GL_FALSE );
         glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
- 
-        int WIDTH = 300;
-        int HEIGHT = 300;
- 
+  
         // Create the window
-        window = glfwCreateWindow(WIDTH, HEIGHT, "Hello World!", NULL, NULL);
+        window = glfwCreateWindow( width, height, "Hello World!", NULL, NULL );
         
         if (window == NULL)
         {
@@ -96,8 +172,8 @@ public class Rally
         // Center our window
         glfwSetWindowPos(
             window,
-            (GLFWvidmode.width(vidmode) - WIDTH) / 2,
-            (GLFWvidmode.height(vidmode) - HEIGHT) / 2
+            (GLFWvidmode.width(vidmode) - width) / 2,
+            (GLFWvidmode.height(vidmode) - height) / 2
         );
  
         // Make the OpenGL context current
@@ -116,14 +192,30 @@ public class Rally
         GLContext.createFromCurrent();
  
         Texture texture = new Texture();
-        texture.loadPNG( "../assets/glider.png" );
+        texture.loadPNG( "../assets/player.png" );
 
-        glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
- 
+        Shader shader = new Shader();
+        try
+        {
+            shader.load( readFile( "../assets/texture.vert" ), readFile( "../assets/texture.frag" ) );
+        }
+        catch (IOException e)
+        {
+            System.out.println( "Could not open shader file." );
+            return;
+        }
+        
+        glClearColor( 1.0f, 0.0f, 0.0f, 0.0f );
+
+        GenerateQuadBuffers();
+        float[] uiMatrix = makeProjectionMatrix( 0, width, height, 0, -1, 1 );
+
         while (glfwWindowShouldClose(window) == GL_FALSE)
         {
             glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
  
+            glDrawArrays( GL_TRIANGLES, 0, 6 );
+            
             glfwSwapBuffers( window );
             glfwPollEvents();
         }

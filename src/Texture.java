@@ -1,6 +1,9 @@
 /*
   @author Timo Wiren
   @date 2014-12-10
+ 
+  Adapted from:
+  https://github.com/mattdesl/lwjgl-basics/blob/master/src/mdesl/graphics/Texture.java
 */
 import org.lwjgl.Sys;
 import org.lwjgl.opengl.*;
@@ -22,8 +25,18 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.String;
 
+import org.lwjgl.BufferUtils;
 import static org.lwjgl.opengl.GL11.*;
+
 import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.opengl.GL11.GL_RGBA;
+import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 
 import de.matthiasmann.twl.utils.PNGDecoder;
 
@@ -65,6 +78,7 @@ public class Texture
         return url;
     }
     
+    // Doesn't work for grayscale format.
     public void loadPNG( String path )
     {
         URL pngRef = getResource( path );
@@ -87,13 +101,23 @@ public class Texture
                 dec = new PNGDecoder(input);
                 width = dec.getWidth();
                 height = dec.getHeight();
+                ByteBuffer buf = BufferUtils.createByteBuffer(4 * width * height);
+                dec.decode(buf, width * 4, PNGDecoder.Format.RGBA);
+                buf.flip();
+                
+                id = glGenTextures();
+                
+                glBindTexture( GL_TEXTURE_2D, id );
+                glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+                glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+                glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+                glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+                glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
             }
             catch (IOException e)
             {
             }
             
-            
-            id = glGenTextures();
             System.out.println( "Texture dimension: " + width + "x" + height );
         }
         finally
