@@ -49,7 +49,7 @@ public class Rally
         return new String( encoded, StandardCharsets.UTF_8 );
     }
 
-    public void checkGLError( String info )
+    public static void checkGLError( String info )
     {
         int errorCode = GL_INVALID_ENUM;
         
@@ -76,6 +76,8 @@ public class Rally
 
     private void GenerateQuadBuffers()
     {
+        checkGLError( "GenerateQuadBuffers begin" );
+
         int vao = glGenVertexArrays();
         glBindVertexArray( vao );
         
@@ -208,8 +210,13 @@ public class Rally
         glClearColor( 1.0f, 0.0f, 0.0f, 0.0f );
 
         GenerateQuadBuffers();
-        float[] uiMatrix = makeProjectionMatrix( 0, width, height, 0, -1, 1 );
-
+        shader.use();
+        float[] uiMatrix = makeProjectionMatrix( 0, width, height, 0, 0, 1 );
+        shader.setMatrix44( "uProjectionMatrix", uiMatrix );
+        float[] scaleOffset = new float[] { 30, 30, 20, 20 };
+        shader.setVector4( "uScaleAndTranslation", scaleOffset );
+        checkGLError( "after uploading uniforms" );
+        
         while (glfwWindowShouldClose(window) == GL_FALSE)
         {
             glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -218,6 +225,7 @@ public class Rally
             
             glfwSwapBuffers( window );
             glfwPollEvents();
+            checkGLError( "frame end" );
         }
     }
  

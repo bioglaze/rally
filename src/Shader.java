@@ -2,7 +2,7 @@
   @author Timo Wiren
   @date 2014-12-13
 */
-import static org.lwjgl.opengl.GL20.GL_COMPILE_STATUS;
+/*import static org.lwjgl.opengl.GL20.GL_COMPILE_STATUS;
 import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
 import static org.lwjgl.opengl.GL20.GL_INFO_LOG_LENGTH;
 import static org.lwjgl.opengl.GL20.GL_LINK_STATUS;
@@ -29,6 +29,8 @@ import static org.lwjgl.opengl.GL20.glUniform4i;
 import static org.lwjgl.opengl.GL20.glUniformMatrix3;
 import static org.lwjgl.opengl.GL20.glUniformMatrix4;
 import static org.lwjgl.opengl.GL20.glUseProgram;
+ */
+import static org.lwjgl.opengl.GL20.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.GL11;
@@ -50,7 +52,28 @@ public class Shader
         
         int vertId = compile( vertexSource, GL_VERTEX_SHADER );
         int fragId = compile( fragmentSource, GL_FRAGMENT_SHADER );
-        System.out.println("Compiled shaders");
+
+        Rally.checkGLError( "Shader load after compiling shaders." );
+
+        programId = glCreateProgram();
+        glAttachShader( programId, vertId );
+        glAttachShader( programId, fragId );
+        glLinkProgram( programId );
+        
+        int comp = glGetProgrami( programId, GL_LINK_STATUS );
+        int len = glGetProgrami( programId, GL_INFO_LOG_LENGTH );
+        String err = glGetProgramInfoLog( programId, len );
+        
+        if (comp == GL11.GL_FALSE)
+        {
+            System.out.println( "Could not link program." );
+            if (err != null && err.length() != 0)
+            {
+                System.out.println( err );
+            }
+        }
+        
+        Rally.checkGLError( "Shader load end" );
     }
     
     public void use()
@@ -64,6 +87,12 @@ public class Shader
         mat44buffer.put( matrix );
         mat44buffer.flip();
         glUniformMatrix4( glGetUniformLocation( programId, name ), false, mat44buffer );
+    }
+    
+    public void setVector4( String name, float[] vector )
+    {
+        glUniform4f( glGetUniformLocation( programId, name ), vector[ 0 ], vector[ 1 ],
+                     vector[ 2 ], vector[ 3 ] );
     }
     
     private int compile( String source, int shaderType )
@@ -88,6 +117,6 @@ public class Shader
             }
         }
         
-        return 0;
+        return shader;
     }
 }
