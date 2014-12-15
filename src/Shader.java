@@ -1,35 +1,7 @@
 /*
   @author Timo Wiren
-  @date 2014-12-13
+  @date 2014-12-15
 */
-/*import static org.lwjgl.opengl.GL20.GL_COMPILE_STATUS;
-import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
-import static org.lwjgl.opengl.GL20.GL_INFO_LOG_LENGTH;
-import static org.lwjgl.opengl.GL20.GL_LINK_STATUS;
-import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
-import static org.lwjgl.opengl.GL20.glGetShaderInfoLog;
-import static org.lwjgl.opengl.GL20.glGetProgramInfoLog;
-import static org.lwjgl.opengl.GL20.glCompileShader;
-import static org.lwjgl.opengl.GL20.glCreateProgram;
-import static org.lwjgl.opengl.GL20.glCreateShader;
-import static org.lwjgl.opengl.GL20.glAttachShader;
-import static org.lwjgl.opengl.GL20.glGetUniformLocation;
-import static org.lwjgl.opengl.GL20.glLinkProgram;
-import static org.lwjgl.opengl.GL20.glShaderSource;
-import static org.lwjgl.opengl.GL20.glGetShaderi;
-import static org.lwjgl.opengl.GL20.glGetShaderi;
-import static org.lwjgl.opengl.GL20.glUniform1f;
-import static org.lwjgl.opengl.GL20.glUniform1i;
-import static org.lwjgl.opengl.GL20.glUniform2f;
-import static org.lwjgl.opengl.GL20.glUniform2i;
-import static org.lwjgl.opengl.GL20.glUniform3f;
-import static org.lwjgl.opengl.GL20.glUniform3i;
-import static org.lwjgl.opengl.GL20.glUniform4f;
-import static org.lwjgl.opengl.GL20.glUniform4i;
-import static org.lwjgl.opengl.GL20.glUniformMatrix3;
-import static org.lwjgl.opengl.GL20.glUniformMatrix4;
-import static org.lwjgl.opengl.GL20.glUseProgram;
- */
 import static org.lwjgl.opengl.GL20.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ContextCapabilities;
@@ -53,8 +25,6 @@ public class Shader
         int vertId = compile( vertexSource, GL_VERTEX_SHADER );
         int fragId = compile( fragmentSource, GL_FRAGMENT_SHADER );
 
-        Rally.checkGLError( "Shader load after compiling shaders." );
-
         programId = glCreateProgram();
         glAttachShader( programId, vertId );
         glAttachShader( programId, fragId );
@@ -72,8 +42,6 @@ public class Shader
                 System.out.println( err );
             }
         }
-        
-        Rally.checkGLError( "Shader load end" );
     }
     
     public void use()
