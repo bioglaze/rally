@@ -127,4 +127,30 @@ public class Renderer
         
         return matrix;
     }
+    
+    private float[] makeProjectionMatrix( float fovDegrees, float aspect, float nearDepth, float farDepth )
+    {
+        float top = (float)Math.tan( (double)(fovDegrees * (3.141592653589f / 360.0f) )) * nearDepth;
+        float bottom = -top;
+        float left = aspect * bottom;
+        float right = aspect * top;
+        
+        float x = (2 * nearDepth) / (right - left);
+        float y = (2 * nearDepth) / (top - bottom);
+        float a = (right + left)  / (right - left);
+        float b = (top + bottom)  / (top - bottom);
+        
+        float c = -(farDepth + nearDepth) / (farDepth - nearDepth);
+        float d = -(2 * farDepth * nearDepth) / (farDepth - nearDepth);
+        
+        float proj[] =
+        new float[] {
+            x, 0, 0,  0,
+            0, y, 0,  0,
+            a, b, c, -1,
+            0, 0, d,  0
+        };
+   
+        return proj;
+    }
 }

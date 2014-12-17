@@ -19,7 +19,7 @@ public class Assets
 
         try
         {
-            List< String > objLines = Files.readAllLines( Paths.get( "../assets/car.pbj" ), StandardCharsets.UTF_8 );
+            List< String > objLines = Files.readAllLines( Paths.get( "../assets/car.obj" ), StandardCharsets.UTF_8 );
             String[] objLineArray = new String[ objLines.size() ];
             objLines.toArray( objLineArray );
             car.initFromObjFileContents( objLineArray );
