@@ -75,12 +75,11 @@ public class Renderer
         }
 
         shader.use();
-        float[] uiMatrix = makeProjectionMatrix( 0, width, height, 0, 0, 1 );
+        float[] uiMatrix = Matrix.makeProjectionMatrix( 0, width, height, 0, 0, 1 );
         shader.setMatrix44( "uProjectionMatrix", uiMatrix );
         float[] scaleOffset = new float[] { 30, 30, 20, 20 };
         shader.setVector4( "uScaleAndTranslation", scaleOffset );
         checkGLError( "after uploading uniforms" );
-
     }
 
     private void generateQuadBuffers()
@@ -109,48 +108,5 @@ public class Renderer
     {
         byte[] encoded = Files.readAllBytes( Paths.get( path ) );
         return new String( encoded, StandardCharsets.UTF_8 );
-    }
-    
-    private float[] makeProjectionMatrix( float left, float right, float bottom, float top, float nearDepth, float farDepth )
-    {
-        float tx = -((right + left) / (right - left));
-        float ty = -((top + bottom) / (top - bottom));
-        float tz = -((farDepth + nearDepth) / (farDepth - nearDepth));
-        
-        float[] matrix = new float[]
-        {
-            2.0f / (right - left), 0.0f, 0.0f, 0.0f,
-            0.0f, 2.0f / (top - bottom), 0.0f, 0.0f,
-            0.0f, 0.0f, -2.0f / (farDepth - nearDepth), 0.0f,
-            tx, ty, tz, 1.0f
-        };
-        
-        return matrix;
-    }
-    
-    private float[] makeProjectionMatrix( float fovDegrees, float aspect, float nearDepth, float farDepth )
-    {
-        float top = (float)Math.tan( (double)(fovDegrees * (3.141592653589f / 360.0f) )) * nearDepth;
-        float bottom = -top;
-        float left = aspect * bottom;
-        float right = aspect * top;
-        
-        float x = (2 * nearDepth) / (right - left);
-        float y = (2 * nearDepth) / (top - bottom);
-        float a = (right + left)  / (right - left);
-        float b = (top + bottom)  / (top - bottom);
-        
-        float c = -(farDepth + nearDepth) / (farDepth - nearDepth);
-        float d = -(2 * farDepth * nearDepth) / (farDepth - nearDepth);
-        
-        float proj[] =
-        new float[] {
-            x, 0, 0,  0,
-            0, y, 0,  0,
-            a, b, c, -1,
-            0, 0, d,  0
-        };
-   
-        return proj;
     }
 }

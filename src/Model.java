@@ -17,18 +17,6 @@ public class Model
     private int vbo;
     private int ibo;
 
-    private class Vec3
-    {
-        public float x, y, z;
-
-        public Vec3( float ax, float ay, float az )
-        {
-            x = ax;
-            y = ay;
-            z = az;
-        }
-    }
-
     // Contains indices to an array of Vertex elements.
     private class Triangle
     {
