@@ -66,7 +66,7 @@ public class Renderer
 
         try
         {
-            shader.load( readFile( "../assets/texture.vert" ), readFile( "../assets/texture.frag" ) );
+            shader.load( readFile( "assets/texture.vert" ), readFile( "assets/texture.frag" ) );
         }
         catch (IOException e)
         {
@@ -89,7 +89,13 @@ public class Renderer
         int vao = glGenVertexArrays();
         glBindVertexArray( vao );
         
-        float[] quad = new float[] { 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1 };
+        //float[] quad = new float[] { 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1 };
+        float[] quad = new float[] { 0, 0, 0, 0, // x, y, u, v
+                                     0, 1, 0, 1,
+                                     1, 0, 1, 0,
+                                     1, 0, 1, 0,
+                                     1, 1, 1, 1,
+                                     0, 1, 0, 1 };
         FloatBuffer positionBuffer = BufferUtils.createFloatBuffer( quad.length );
         positionBuffer.put( quad );
         positionBuffer.flip();
@@ -98,7 +104,7 @@ public class Renderer
         glBindBuffer( GL_ARRAY_BUFFER, vbo );
         glBufferData( GL_ARRAY_BUFFER, positionBuffer, GL_STATIC_DRAW );
         glEnableVertexAttribArray( 0 );
-        glVertexAttribPointer( 0, 2, GL_FLOAT, false, 0, 0 );
+        glVertexAttribPointer( 0, 4, GL_FLOAT, false, 0, 0 );
         checkGLError( "GenerateQuadBuffers end" );
     }
 

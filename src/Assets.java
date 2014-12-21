@@ -1,6 +1,6 @@
 /**
    @author Timo Wiren
-   @date 2014-12-15
+   @date 2014-12-21
  */
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -19,7 +19,7 @@ public class Assets
 
         try
         {
-            List< String > objLines = Files.readAllLines( Paths.get( "../assets/car.obj" ), StandardCharsets.UTF_8 );
+            List< String > objLines = Files.readAllLines( Paths.get( "assets/car.obj" ), StandardCharsets.UTF_8 );
             String[] objLineArray = new String[ objLines.size() ];
             objLines.toArray( objLineArray );
             car.initFromObjFileContents( objLineArray );

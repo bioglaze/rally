@@ -2,15 +2,17 @@
   Rally - A simple rally game
 
   @author Timo Wiren
-  @date 2014-12-15
+  @date 2014-12-21
  
   Uses OpenGL 4.1, so make sure your driver can handle it.
 
   Compilation:
-  javac -cp lwjgl/jar/lwjgl.jar:./PNGDecoder.jar *.java
+  javac -cp lwjgl/jar/lwjgl.jar *.java -d ../bin
+  or just run ./compile.sh in src/
  
-  Running (OS X):
-  java -cp .:res:lwjgl/jar/lwjgl.jar:PNGDecoder.jar -Djava.library.path=./lwjgl/native/macosx/x64 Rally
+  Running (OS X): Goto bin folder and execute the command:
+  java -cp .:res:lwjgl/jar/lwjgl.jar -Djava.library.path=./lwjgl/native/macosx/x64 Rally
+  or just run run.sh in bin/
  */
 import org.lwjgl.Sys;
 import org.lwjgl.glfw.*;
@@ -116,14 +118,14 @@ public class Rally
         GLContext.createFromCurrent();
  
         Texture texture = new Texture();
-        texture.loadPNG( "../assets/player.png" );
+        texture.loadPNG( "assets/player.png" );
         
         glClearColor( 1.0f, 0.0f, 0.0f, 0.0f );
 
         Renderer renderer = new Renderer();
         renderer.init( width, height );
         
-        assets.init();
+        //assets.init();
         
         while (glfwWindowShouldClose(window) == GL_FALSE)
         {
