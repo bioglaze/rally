@@ -1,6 +1,6 @@
 /*
   @author Timo Wiren
-  @date 2014-12-15
+  @date 2014-12-22
 */
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -22,6 +22,7 @@ import static org.lwjgl.opengl.GL30.*;
 public class Renderer
 {
     private Shader shader = new Shader();
+    private Shader modelShader = new Shader();
     
     /**
      Prints OpenGL error to console, if any.
@@ -80,6 +81,20 @@ public class Renderer
         float[] scaleOffset = new float[] { 30, 30, 20, 20 };
         shader.setVector4( "uScaleAndTranslation", scaleOffset );
         checkGLError( "after uploading uniforms" );
+
+        try
+        {
+            modelShader.load( readFile( "assets/model.vert" ), readFile( "assets/model.frag" ) );
+        }
+        catch (IOException e)
+        {
+            System.out.println( "Could not open shader file." );
+            return;
+        }
+        
+        modelShader.use();
+        float[] perspMatrix = Matrix.makeProjectionMatrix( 45, width / (float)height, 1, 200 );
+        modelShader.setMatrix44( "uProjectionMatrix", perspMatrix );
     }
 
     private void generateQuadBuffers()

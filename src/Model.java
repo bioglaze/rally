@@ -1,6 +1,6 @@
 /**
    @author Timo Wiren
-   @date 2014-12-18
+   @date 2014-12-22
  */
 import java.util.ArrayList;
 import org.lwjgl.BufferUtils;
@@ -16,7 +16,9 @@ public class Model
     private int vao;
     private int vbo;
     private int ibo;
-
+    private ShortBuffer indexBuffer;
+    private int faceCount;
+    
     // Contains indices to an array of Vertex elements.
     private class Triangle
     {
@@ -39,10 +41,14 @@ public class Model
         int[] normalIndices = new int[ 3 ];
     }
     
-    public void Draw()
+    public void draw()
     {
         glBindVertexArray( vao );
-        //glDrawElements( GL_TRIANGLES, 0, );
+        glEnableVertexAttribArray( 0 );
+        glEnableVertexAttribArray( 1 );
+        glEnableVertexAttribArray( 2 );
+        //glDrawElements( GL_TRIANGLES, indexBuffer );
+        glDrawElements( GL_TRIANGLES, faceCount * 3, GL_UNSIGNED_SHORT, 0 );
     }
     
     /**
@@ -228,9 +234,12 @@ public class Model
         glBindBuffer( GL_ARRAY_BUFFER, vbo );
         glBufferData( GL_ARRAY_BUFFER, positionBuffer, GL_STATIC_DRAW );
         glEnableVertexAttribArray( 0 );
-        glVertexAttribPointer( 0, 3, GL_FLOAT, false, 0, 0 );
-        glVertexAttribPointer( 1, 2, GL_FLOAT, false, 0, 3 * 4 );
-        glVertexAttribPointer( 2, 3, GL_FLOAT, false, 0, 5 * 4 );
+        glEnableVertexAttribArray( 1 );
+        glEnableVertexAttribArray( 2 );
+        int stride = floatsInVertex * 4;
+        glVertexAttribPointer( 0, 3, GL_FLOAT, false, stride, 0 );
+        glVertexAttribPointer( 1, 2, GL_FLOAT, false, stride, 3 * 4 );
+        glVertexAttribPointer( 2, 3, GL_FLOAT, false, stride, 5 * 4 );
         
         short[] indexBuf = new short[ triangles.size() * 3 ];
         i = 0;
@@ -240,15 +249,20 @@ public class Model
             indexBuf[ i + 0 ] = (short)triangles.get( f ).indices[ 0 ];
             indexBuf[ i + 1 ] = (short)triangles.get( f ).indices[ 1 ];
             indexBuf[ i + 2 ] = (short)triangles.get( f ).indices[ 2 ];
+
+            //System.out.println( "triangle: " + indexBuf[ i + 0 ] + ", " + indexBuf[ i + 1 ] + ", " + indexBuf[ i + 2 ] );
+
             i += 3;
         }
+        //System.out.println( "vertices: " + vertices.size() );
         
-        ShortBuffer indexBuffer = BufferUtils.createShortBuffer( indexBuf.length );
+        indexBuffer = BufferUtils.createShortBuffer( indexBuf.length );
         indexBuffer.put( indexBuf );
         indexBuffer.flip();
 
         ibo = glGenBuffers();
         glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo );
         glBufferData( GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW );
+        faceCount = triangles.size();
     }
 }

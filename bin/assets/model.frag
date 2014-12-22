@@ -4,6 +4,7 @@ uniform sampler2D colorMap;
 uniform vec4 tintColor;
 
 in vec2 vUV;
+in vec3 vNormal;
 out vec4 fragColor;
 
 void main()

@@ -2,7 +2,7 @@
   Rally - A simple rally game
 
   @author Timo Wiren
-  @date 2014-12-21
+  @date 2014-12-22
  
   Uses OpenGL 4.1, so make sure your driver can handle it.
 
@@ -28,6 +28,8 @@ public class Rally
 {
     private GLFWErrorCallback errorCallback;
     private GLFWKeyCallback keyCallback;
+    private GLFWCursorPosCallback cursorPosCallback;
+    private GLFWMouseButtonCallback mouseButtonCallback;
     private int width = 640;
     private int height = 480;
     private long window;
@@ -85,6 +87,10 @@ public class Rally
         }
         
         glfwSetKeyCallback(window, keyCallback = GLFWKeyCallback((win, key, scanCode, action, mods) -> keyAction( key, action )));
+        
+        glfwSetCursorPosCallback(window, cursorPosCallback = GLFWCursorPosCallback((win, x, y) -> cursorPosChanged( x, y )));
+
+        glfwSetMouseButtonCallback(window, mouseButtonCallback = GLFWMouseButtonCallback((win, button, action, mods) -> mouseButtonAction( button, action, mods )));
 
         ByteBuffer vidmode = glfwGetVideoMode( glfwGetPrimaryMonitor() );
         // Center our window
@@ -99,6 +105,29 @@ public class Rally
         glfwShowWindow( window );
     }
 
+    private void cursorPosChanged( double x, double y )
+    {
+        //System.out.println( "x: " + x + ", y: " + y );
+    }
+    
+    private void mouseButtonAction( int button, int action, int mods )
+    {
+        //System.out.println("button: " + button + ", action: " + action + ", mods: " + mods);
+        if (button == GLFW_MOUSE_BUTTON_1)
+        {
+        
+        }
+        
+        if (action == GLFW_PRESS)
+        {
+        
+        }
+        else if (action == GLFW_RELEASE)
+        {
+        
+        }
+    }
+    
     private void keyAction( int key, int action )
     {
         if (action == GLFW_PRESS)
@@ -125,13 +154,14 @@ public class Rally
         Renderer renderer = new Renderer();
         renderer.init( width, height );
         
-        //assets.init();
+        assets.init();
         
         while (glfwWindowShouldClose(window) == GL_FALSE)
         {
             glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
  
-            glDrawArrays( GL_TRIANGLES, 0, 6 );
+            assets.car.draw();
+            //glDrawArrays( GL_TRIANGLES, 0, 6 );
             
             glfwSwapBuffers( window );
             glfwPollEvents();

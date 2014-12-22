@@ -1,4 +1,4 @@
-#version 410
+#version 410 core
 
 uniform mat4 uProjectionMatrix;
 uniform vec4 uScaleAndTranslation;
