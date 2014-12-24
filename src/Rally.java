@@ -2,7 +2,7 @@
   Rally - A simple rally game
 
   @author Timo Wiren
-  @date 2014-12-22
+  @date 2014-12-24
  
   Uses OpenGL 4.1, so make sure your driver can handle it.
 
@@ -150,18 +150,23 @@ public class Rally
         texture.loadPNG( "assets/player.png" );
         
         glClearColor( 1.0f, 0.0f, 0.0f, 0.0f );
-
+        glEnable( GL_DEPTH_TEST );
+        
         Renderer renderer = new Renderer();
         renderer.init( width, height );
         
         assets.init();
+        assets.car.setPosition( new Vec3( 0, 0, -7 ) );
+
+        float angle = 0;
         
-        while (glfwWindowShouldClose(window) == GL_FALSE)
+        while (glfwWindowShouldClose( window ) == GL_FALSE)
         {
             glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
- 
-            assets.car.draw();
-            //glDrawArrays( GL_TRIANGLES, 0, 6 );
+            
+            ++angle;
+            assets.car.setRotation( new Vec3( 0, angle, 0 ) );
+            renderer.draw( assets.car );
             
             glfwSwapBuffers( window );
             glfwPollEvents();

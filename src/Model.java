@@ -1,6 +1,6 @@
 /**
    @author Timo Wiren
-   @date 2014-12-22
+   @date 2014-12-24
  */
 import java.util.ArrayList;
 import org.lwjgl.BufferUtils;
@@ -18,6 +18,9 @@ public class Model
     private int ibo;
     private ShortBuffer indexBuffer;
     private int faceCount;
+    private Vec3 position = new Vec3( 0, 0, 0 );
+    private Vec3 rotation = new Vec3( 0, 0, 0 );
+    private float[] modelMatrix = new float[ 16 ];
     
     // Contains indices to an array of Vertex elements.
     private class Triangle
@@ -40,14 +43,28 @@ public class Model
         int[] tcoordIndices = new int[ 3 ];
         int[] normalIndices = new int[ 3 ];
     }
-    
-    public void draw()
+
+    public void setPosition( Vec3 position )
     {
+        this.position = position;
+        modelMatrix = createModelMatrix();
+    }
+    
+    public void setRotation( Vec3 eulerDegrees )
+    {
+        rotation = eulerDegrees;
+        modelMatrix = createModelMatrix();
+    }
+    
+    public void draw( Shader shader, float[] viewProjectionMatrix )
+    {
+        shader.use();
+        shader.setMatrix44( "uViewProjectionMatrix", viewProjectionMatrix );
+        shader.setMatrix44( "uModelMatrix", modelMatrix );
         glBindVertexArray( vao );
         glEnableVertexAttribArray( 0 );
         glEnableVertexAttribArray( 1 );
         glEnableVertexAttribArray( 2 );
-        //glDrawElements( GL_TRIANGLES, indexBuffer );
         glDrawElements( GL_TRIANGLES, faceCount * 3, GL_UNSIGNED_SHORT, 0 );
     }
     
@@ -161,14 +178,14 @@ public class Model
         
         boolean found = false;
  
-        for (int f = 0; f < outTriangles.size(); ++f)
+        for (int v = 0; v < outVertices.size(); ++v)
         {
-            if (outVertices.get( outTriangles.get( f ).indices[ vertexIndex ] ).position.equals( vertex ) &&
-                outVertices.get( outTriangles.get( f ).indices[ vertexIndex ] ).texcoord.equals( tcoord ) &&
-                outVertices.get( outTriangles.get( f ).indices[ vertexIndex ] ).normal.equals( normal ))
+            if (outVertices.get( v ).position.equals( vertex ) &&
+                outVertices.get( v ).texcoord.equals( tcoord ) &&
+                outVertices.get( v ).normal.equals( normal ))
             {
                 found = true;
-                newFace.indices[ vertexIndex ] = f;
+                newFace.indices[ vertexIndex ] = v;
                 break;
             }
         }
@@ -264,5 +281,12 @@ public class Model
         glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo );
         glBufferData( GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW );
         faceCount = triangles.size();
+    }
+    
+    private float[] createModelMatrix()
+    {
+        float[] translate = Matrix.makeTranslate( position );
+        float[] rotate = Matrix.makeRotationXYZ( rotation );
+        return Matrix.multiply( rotate, translate );
     }
 }

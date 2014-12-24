@@ -1,6 +1,6 @@
 /**
    @author Timo Wiren
-   @date 2014-12-19
+   @date 2014-12-24
  */
 public class Matrix
 {
@@ -47,9 +47,9 @@ public class Matrix
         return proj;
     }
     
-    public static float[] makeIdentity( float[] matrix )
+    public static float[] makeIdentity()
     {
-        assert matrix.length == 16;
+        float[] matrix = new float[ 16 ];
         
         for (int i = 0; i < 16; ++i)
         {
@@ -112,8 +112,7 @@ public class Matrix
         m[ 3 ] = m[ 7 ] = m[ 11 ] = 0;
         m[15 ] = 1;
         
-        float translate[] = new float[ 4 * 4 ];
-        makeIdentity( translate );
+        float translate[] = makeIdentity();
         translate[ 12 ] = -eye.x;
         translate[ 13 ] = -eye.y;
         translate[ 14 ] = -eye.z;
@@ -121,5 +120,46 @@ public class Matrix
         m = Matrix.multiply( translate, m );
         
         return m;
+    }
+    
+    public static float[] makeRotationXYZ( Vec3 eulerDegrees )
+    {
+        float[] m = new float[ 16 ];
+        float deg2rad = (float)Math.PI / 180.0f;
+        float sx = (float)Math.sin( eulerDegrees.x * deg2rad );
+        float sy = (float)Math.sin( eulerDegrees.y * deg2rad );
+        float sz = (float)Math.sin( eulerDegrees.z * deg2rad );
+        float cx = (float)Math.cos( eulerDegrees.x * deg2rad );
+        float cy = (float)Math.cos( eulerDegrees.y * deg2rad );
+        float cz = (float)Math.cos( eulerDegrees.z * deg2rad );
+        
+        m[ 0 ] = cy * cz;
+        m[ 1 ] = cz * sx * sy - cx * sz;
+        m[ 2 ] = cx * cz * sy + sx * sz;
+        m[ 3 ] = 0;
+        m[ 4 ] = cy * sz;
+        m[ 5 ] = cx * cz + sx * sy * sz;
+        m[ 6 ] = -cz * sx + cx * sy * sz;
+        m[ 7 ] = 0;
+        m[ 8 ] = -sy;
+        m[ 9 ] = cy * sx;
+        m[10 ] = cx * cy;
+        m[11 ] = 0;
+        m[12 ] = 0;
+        m[13 ] = 0;
+        m[14 ] = 0;
+        m[15 ] = 1;
+        
+        return m;
+    }
+    
+    public static float[] makeTranslate( Vec3 position )
+    {
+        float[] translateMatrix = makeIdentity();
+        translateMatrix[ 12 ] = position.x;
+        translateMatrix[ 13 ] = position.y;
+        translateMatrix[ 14 ] = position.z;
+        
+        return translateMatrix;
     }
 }

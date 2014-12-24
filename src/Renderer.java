@@ -1,6 +1,6 @@
 /*
   @author Timo Wiren
-  @date 2014-12-22
+  @date 2014-12-24
 */
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -23,6 +23,12 @@ public class Renderer
 {
     private Shader shader = new Shader();
     private Shader modelShader = new Shader();
+    private float[] viewProjection = new float[ 16 ];
+
+    public void draw( Model model )
+    {
+        model.draw( modelShader, viewProjection );
+    }
     
     /**
      Prints OpenGL error to console, if any.
@@ -92,9 +98,8 @@ public class Renderer
             return;
         }
         
-        modelShader.use();
         float[] perspMatrix = Matrix.makeProjectionMatrix( 45, width / (float)height, 1, 200 );
-        modelShader.setMatrix44( "uProjectionMatrix", perspMatrix );
+        viewProjection = perspMatrix;
     }
 
     private void generateQuadBuffers()
