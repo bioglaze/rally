@@ -1,6 +1,6 @@
 /**
    @author Timo Wiren
-   @date 2014-12-24
+   @date 2014-12-25
  */
 import java.util.ArrayList;
 import org.lwjgl.BufferUtils;
@@ -42,6 +42,16 @@ public class Model
         int[] vertexIndices = new int[ 3 ];
         int[] tcoordIndices = new int[ 3 ];
         int[] normalIndices = new int[ 3 ];
+    }
+
+    public Vec3 getPosition()
+    {
+        return position;
+    }
+
+    public Vec3 getRotation()
+    {
+        return rotation;
     }
 
     public void setPosition( Vec3 position )
@@ -169,8 +179,7 @@ public class Model
                             int faceIndex,
                             int vertexIndex,
                             Triangle newFace,
-                            ArrayList< Vertex > outVertices,
-                            ArrayList< Triangle > outTriangles )
+                            ArrayList< Vertex > outVertices )
     {
         Vec3 vertex = vertices.get( faces.get( faceIndex ).vertexIndices[ vertexIndex ] );
         Vec3 normal = normals.get( faces.get( faceIndex ).normalIndices[ vertexIndex ] );
@@ -211,9 +220,9 @@ public class Model
         for (int f = 0; f < faces.size(); ++f)
         {
             Triangle newTriangle = new Triangle();
-            addVertex( vertices, texcoords, normals, faces, f, 0, newTriangle, outVertices, outTriangles );
-            addVertex( vertices, texcoords, normals, faces, f, 1, newTriangle, outVertices, outTriangles );
-            addVertex( vertices, texcoords, normals, faces, f, 2, newTriangle, outVertices, outTriangles );
+            addVertex( vertices, texcoords, normals, faces, f, 0, newTriangle, outVertices );
+            addVertex( vertices, texcoords, normals, faces, f, 1, newTriangle, outVertices );
+            addVertex( vertices, texcoords, normals, faces, f, 2, newTriangle, outVertices );
             outTriangles.add( newTriangle );
         }
     }

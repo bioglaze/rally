@@ -2,7 +2,7 @@
   Rally - A simple rally game
 
   @author Timo Wiren
-  @date 2014-12-24
+  @date 2014-12-26
  
   Uses OpenGL 4.1, so make sure your driver can handle it.
 
@@ -33,8 +33,8 @@ public class Rally
     private int width = 640;
     private int height = 480;
     private long window;
-    private Assets assets = new Assets();
-    
+    private Game game;
+
     public static void main(String[] args)
     {
         new Rally().run();
@@ -78,8 +78,7 @@ public class Rally
         glfwWindowHint( GLFW_VISIBLE, GL_FALSE );
         glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
   
-        // Create the window
-        window = glfwCreateWindow( width, height, "Hello World!", NULL, NULL );
+        window = glfwCreateWindow( width, height, "Rally", NULL, NULL );
         
         if (window == NULL)
         {
@@ -120,7 +119,6 @@ public class Rally
         
         if (action == GLFW_PRESS)
         {
-        
         }
         else if (action == GLFW_RELEASE)
         {
@@ -130,13 +128,33 @@ public class Rally
     
     private void keyAction( int key, int action )
     {
-        if (action == GLFW_PRESS)
+        if (action == GLFW_PRESS && key == GLFW_KEY_UP)
         {
-        
+            game.doAction( Game.InputAction.Accelerate );
         }
-        else if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
+        else if (action == GLFW_PRESS && key == GLFW_KEY_DOWN)
         {
-            glfwSetWindowShouldClose( window, GL_TRUE ); // We will detect this in our rendering loop
+            game.doAction( Game.InputAction.ReverseAccel );
+        }
+        else if (action == GLFW_PRESS && key == GLFW_KEY_LEFT)
+        {
+            game.doAction( Game.InputAction.TurnLeft );
+        }
+        else if (action == GLFW_PRESS && key == GLFW_KEY_RIGHT)
+        {
+            game.doAction( Game.InputAction.TurnRight );
+        }
+        else if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE)
+        {
+            glfwSetWindowShouldClose( window, GL_TRUE );
+        }
+        else if (action == GLFW_RELEASE && key == GLFW_KEY_UP)
+        {
+            game.doAction( Game.InputAction.Decelerate );
+        }
+        else if (action == GLFW_RELEASE && key == GLFW_KEY_DOWN)
+        {
+            game.doAction( Game.InputAction.ReverseDecel );
         }
 
         //System.out.println( "key action. Key: " + key + ", action: " + action );
@@ -146,27 +164,18 @@ public class Rally
     {
         GLContext.createFromCurrent();
  
-        Texture texture = new Texture();
-        texture.loadPNG( "assets/player.png" );
-        
-        glClearColor( 1.0f, 0.0f, 0.0f, 0.0f );
-        glEnable( GL_DEPTH_TEST );
-        
         Renderer renderer = new Renderer();
         renderer.init( width, height );
-        
-        assets.init();
-        assets.car.setPosition( new Vec3( 0, 0, -7 ) );
+        renderer.lookAt( new Vec3( 0, 16, 0 ), new Vec3( 0, -80, -100 ) );
 
-        float angle = 0;
+        game = new Game( renderer );
         
         while (glfwWindowShouldClose( window ) == GL_FALSE)
         {
-            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+            renderer.clear();
             
-            ++angle;
-            assets.car.setRotation( new Vec3( 0, angle, 0 ) );
-            renderer.draw( assets.car );
+            game.update();
+            game.draw();
             
             glfwSwapBuffers( window );
             glfwPollEvents();

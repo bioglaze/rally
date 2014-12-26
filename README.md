@@ -1,6 +1,6 @@
 # rally
 
-A simple 3D rally game written in Java/LWJGL. Not yet playable.
+A simple 3D rally game written in Java/LWJGL/OpenGL 4.1. Not yet playable.
 
 ## Compilation and running
 

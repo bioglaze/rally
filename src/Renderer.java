@@ -1,6 +1,6 @@
 /*
   @author Timo Wiren
-  @date 2014-12-24
+  @date 2014-12-26
 */
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -23,6 +23,8 @@ public class Renderer
 {
     private Shader shader = new Shader();
     private Shader modelShader = new Shader();
+    private float[] viewMatrix = new float[ 16 ];
+    private float[] perspMatrix = new float[ 16 ];
     private float[] viewProjection = new float[ 16 ];
 
     public void draw( Model model )
@@ -60,6 +62,11 @@ public class Renderer
         }
     }
 
+    public void clear()
+    {
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    }
+    
     /**
        Side effects: quad buffer is generated and tex shader is compiled and
        bound and its projection uniform is set.
@@ -98,10 +105,19 @@ public class Renderer
             return;
         }
         
-        float[] perspMatrix = Matrix.makeProjectionMatrix( 45, width / (float)height, 1, 200 );
+        perspMatrix = Matrix.makeProjectionMatrix( 45, width / (float)height, 1, 200 );
         viewProjection = perspMatrix;
+        
+        glClearColor( 0, 0, 0, 0 );
+        glEnable( GL_DEPTH_TEST );
     }
 
+    public void lookAt( Vec3 position, Vec3 target )
+    {
+        viewMatrix = Matrix.makeLookAt( position, target, new Vec3( 0, 1, 0 ) );
+        viewProjection = Matrix.multiply( viewMatrix, perspMatrix );
+    }
+    
     private void generateQuadBuffers()
     {
         checkGLError( "GenerateQuadBuffers begin" );
