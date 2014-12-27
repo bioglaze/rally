@@ -1,6 +1,6 @@
 /**
    @author Timo Wiren
-   @date 2014-12-24
+   @date 2014-12-27
  */
 public class Matrix
 {
@@ -62,6 +62,16 @@ public class Matrix
         matrix[ 15 ] = 1;
         
         return matrix;
+    }
+    
+    public static float[] makeScale( float scale )
+    {
+        float[] outMatrix = makeIdentity();
+        outMatrix[  0 ] = scale;
+        outMatrix[  5 ] = scale;
+        outMatrix[ 10 ] = scale;
+        
+        return outMatrix;
     }
     
     public static float[] multiply( float[] a, float[] b )

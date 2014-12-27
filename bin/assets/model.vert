@@ -13,6 +13,6 @@ out vec3 vNormal;
 void main()
 {
     gl_Position = uViewProjectionMatrix * uModelMatrix * vec4( aPosition, 1.0 );
-    vUV = aTexcoord;
+    vUV = vec2( aTexcoord.x, 1.0 - aTexcoord.y );
     vNormal = aNormal;
 }

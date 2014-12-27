@@ -21,7 +21,8 @@ public class Model
     private Vec3 position = new Vec3( 0, 0, 0 );
     private Vec3 rotation = new Vec3( 0, 0, 0 );
     private float[] modelMatrix = new float[ 16 ];
-    
+    private float[] scaleMatrix = Matrix.makeScale( 1 );
+
     // Contains indices to an array of Vertex elements.
     private class Triangle
     {
@@ -66,6 +67,12 @@ public class Model
         modelMatrix = createModelMatrix();
     }
     
+    public void setScale( float scale )
+    {
+        scaleMatrix = Matrix.makeScale( scale );
+        modelMatrix = createModelMatrix();
+    }
+    
     public void draw( Shader shader, float[] viewProjectionMatrix )
     {
         shader.use();
@@ -97,12 +104,11 @@ public class Model
         
         while (lineNo < objContents.length)
         {
-            //System.out.println( objContents[ lineNo ].substring( 0, 2 )  );
             String line = objContents[ lineNo ];
             
             if (line.substring( 0, 2 ).equals( "o " ))
             {
-                System.out.println( "Found mesh in .obj." );
+                // New mesh begins, but since we currently only support one mesh, do nothing.
             }
             else if (line.substring( 0, 2 ).equals( "v " ))
             {
@@ -296,6 +302,6 @@ public class Model
     {
         float[] translate = Matrix.makeTranslate( position );
         float[] rotate = Matrix.makeRotationXYZ( rotation );
-        return Matrix.multiply( rotate, translate );
+        return Matrix.multiply( scaleMatrix, Matrix.multiply( rotate, translate ) );
     }
 }

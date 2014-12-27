@@ -2,7 +2,7 @@
   Rally - A simple rally game
 
   @author Timo Wiren
-  @date 2014-12-26
+  @date 2014-12-27
  
   Uses OpenGL 4.1, so make sure your driver can handle it.
 
@@ -155,6 +155,10 @@ public class Rally
         else if (action == GLFW_RELEASE && key == GLFW_KEY_DOWN)
         {
             game.doAction( Game.InputAction.ReverseDecel );
+        }
+        else if (action == GLFW_RELEASE && (key == GLFW_KEY_LEFT || key == GLFW_KEY_RIGHT))
+        {
+            game.doAction( Game.InputAction.EndTurning );
         }
 
         //System.out.println( "key action. Key: " + key + ", action: " + action );

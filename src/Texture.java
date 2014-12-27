@@ -1,9 +1,6 @@
 /*
   @author Timo Wiren
-  @date 2014-12-21
- 
-  Adapted from:
-  https://github.com/mattdesl/lwjgl-basics/blob/master/src/mdesl/graphics/Texture.java
+  @date 2014-12-27
 */
 import org.lwjgl.Sys;
 import org.lwjgl.opengl.*;
@@ -47,7 +44,8 @@ public class Texture
     private int id;
     private int width;
     private int height;
-    
+    private boolean opaque;
+
     private static File createFile(String ref)
     {
         final File ROOT = new File( "." );
@@ -102,11 +100,12 @@ public class Texture
         width = image.getWidth();
         height = image.getHeight();
         int BYTES_PER_PIXEL = image.getTransparency() == Transparency.OPAQUE ? 3 : 4;
+        opaque = BYTES_PER_PIXEL == 3;
         
         int[] pixels = new int[ image.getWidth() * image.getHeight() ];
         image.getRGB( 0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth() );
         
-        ByteBuffer buffer = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * BYTES_PER_PIXEL); //4 for RGBA, 3 for RGB
+        ByteBuffer buffer = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * BYTES_PER_PIXEL);
         
         for(int y = 0; y < image.getHeight(); ++y)
         {
@@ -115,8 +114,12 @@ public class Texture
                 int pixel = pixels[ y * image.getWidth() + x ];
                 buffer.put((byte) ((pixel >> 16) & 0xFF));     // Red component
                 buffer.put((byte) ((pixel >> 8) & 0xFF));      // Green component
-                buffer.put((byte) (pixel & 0xFF));               // Blue component
-                buffer.put((byte) ((pixel >> 24) & 0xFF));    // Alpha component. Only for RGBA
+                buffer.put((byte) (pixel & 0xFF));             // Blue component
+                
+                if (BYTES_PER_PIXEL == 4)
+                {
+                    buffer.put((byte) ((pixel >> 24) & 0xFF)); // Alpha component.
+                }
             }
         }
         
@@ -124,7 +127,7 @@ public class Texture
         return buffer;
     }
     
-    public void loadPNG( String path )
+    public void loadImage( String path )
     {
         ByteBuffer imageBuffer = loadImageData( path );
         id = glGenTextures();
@@ -134,7 +137,6 @@ public class Texture
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-        glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBuffer );
-
+        glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, opaque ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, imageBuffer );
     }
 }
