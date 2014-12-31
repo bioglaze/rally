@@ -1,9 +1,11 @@
 /**
   @author Timo Wiren
-  @date 2014-12-25
+  @date 2014-12-31
 */
 public class Vec3
 {
+    public float x, y, z;
+
     public Vec3( float ax, float ay, float az )
     {
         x = ax;
@@ -58,5 +60,8 @@ public class Vec3
         return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
     }
 
-    public float x, y, z;
+    public static float distance( Vec3 v1, Vec3 v2 )
+    {
+        return subtract( v1, v2 ).length();
+    }
 }

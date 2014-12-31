@@ -1,6 +1,6 @@
 /*
   @author Timo Wiren
-  @date 2014-12-26
+  @date 2014-12-31
 */
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -26,12 +26,24 @@ public class Renderer
     private float[] viewMatrix = new float[ 16 ];
     private float[] perspMatrix = new float[ 16 ];
     private float[] viewProjection = new float[ 16 ];
+    private int spriteVAO = 0;
 
     public void draw( Model model )
     {
         model.draw( modelShader, viewProjection );
     }
     
+    public void draw( Texture texture, int x, int y, int width, int height )
+    {
+        shader.use();
+        float[] scaleOffset = new float[] { width, height, x, y };
+        shader.setVector4( "uScaleAndTranslation", scaleOffset );
+        
+        glBindVertexArray( spriteVAO );
+        glEnableVertexAttribArray( 0 );
+        glDrawArrays( GL_TRIANGLES, 0, 6 );
+    }
+
     /**
      Prints OpenGL error to console, if any.
      
@@ -122,8 +134,8 @@ public class Renderer
     {
         checkGLError( "GenerateQuadBuffers begin" );
         
-        int vao = glGenVertexArrays();
-        glBindVertexArray( vao );
+        spriteVAO = glGenVertexArrays();
+        glBindVertexArray( spriteVAO );
         
         //float[] quad = new float[] { 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1 };
         float[] quad = new float[] { 0, 0, 0, 0, // x, y, u, v

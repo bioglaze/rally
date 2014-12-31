@@ -83,6 +83,8 @@ public class Model
         glEnableVertexAttribArray( 1 );
         glEnableVertexAttribArray( 2 );
         glDrawElements( GL_TRIANGLES, faceCount * 3, GL_UNSIGNED_SHORT, 0 );
+        glDisableVertexAttribArray( 1 );
+        glDisableVertexAttribArray( 2 );
     }
     
     /**
