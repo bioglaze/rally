@@ -1,6 +1,6 @@
 /*
   @author Timo Wiren
-  @date 2014-12-27
+  @date 2015-01-01
 */
 import org.lwjgl.Sys;
 import org.lwjgl.opengl.*;
@@ -46,6 +46,11 @@ public class Texture
     private int height;
     private boolean opaque;
 
+    public int getId()
+    {
+        return id;
+    }
+    
     private static File createFile(String ref)
     {
         final File ROOT = new File( "." );

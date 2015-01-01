@@ -1,6 +1,6 @@
 /*
   @author Timo Wiren
-  @date 2014-12-31
+  @date 2015-01-01
 */
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -28,13 +28,16 @@ public class Renderer
     private float[] viewProjection = new float[ 16 ];
     private int spriteVAO = 0;
 
-    public void draw( Model model )
+    public void draw( Model model, Texture texture )
     {
+        setTexture( texture );
         model.draw( modelShader, viewProjection );
     }
     
     public void draw( Texture texture, int x, int y, int width, int height )
     {
+        setTexture( texture );
+
         shader.use();
         float[] scaleOffset = new float[] { width, height, x, y };
         shader.setVector4( "uScaleAndTranslation", scaleOffset );
@@ -43,7 +46,7 @@ public class Renderer
         glEnableVertexAttribArray( 0 );
         glDrawArrays( GL_TRIANGLES, 0, 6 );
     }
-
+    
     /**
      Prints OpenGL error to console, if any.
      
@@ -162,5 +165,10 @@ public class Renderer
     {
         byte[] encoded = Files.readAllBytes( Paths.get( path ) );
         return new String( encoded, StandardCharsets.UTF_8 );
+    }
+    
+    private void setTexture( Texture texture )
+    {
+        glBindTexture( GL_TEXTURE_2D, texture.getId() );
     }
 }

@@ -1,6 +1,6 @@
 /**
    @author Timo Wiren
-   @date 2014-12-31
+   @date 2015-01-01
  */
 public class Game
 {
@@ -20,35 +20,20 @@ public class Game
     private Vec3 carDirection = new Vec3( 0, 0, 0 );
     private boolean isAccelerating = false;
     private boolean isReversing = false;
-    private Texture timeBarTexture = new Texture();
     private double remainingLapTime = 5;
+    private float signSpeed = 0;
+    private float lapOpacity = 1;
+    private float lapFadeStartTime = 0;
 
     public Game( Renderer renderer )
     {
         assets.init();
-        assets.car.setPosition( new Vec3( 0, 0, -15 ) );
-        assets.car.setRotation( new Vec3( 0, 0, -1 ) );
-
-        assets.track.setPosition( new Vec3( 0, 0, -15 ) );
-        assets.track.setRotation( new Vec3( 0, 0, -1 ) );
-        assets.track.setScale( 5 );
-
-        assets.lap.setPosition( new Vec3( 0, 0, -20 ) );
-        
         this.renderer = renderer;
-        
-        Texture texture = new Texture();
-        texture.loadImage( "assets/player.png" );
-        
-        timeBarTexture.loadImage( "assets/player.png" );
     }
     
     public void draw()
     {
-        renderer.draw( assets.track );
-        renderer.draw( assets.car );
-        renderer.draw( assets.lap );
-        renderer.draw( timeBarTexture, 20, 20, 300 - 40, 20 );
+        assets.draw( renderer );
     }
     
     public void update()
@@ -56,6 +41,7 @@ public class Game
         updateCarMovement();
         updateCamera();
         updateLap();
+        updateTimer();
     }
 
     public void doAction( InputAction action )
@@ -99,15 +85,18 @@ public class Game
         Vec3 rot = assets.car.getRotation();
         float newRotY = assets.car.getRotation().y + carDirection.y;
         assets.car.setRotation( new Vec3( rot.x, newRotY, rot.z ) );
+
+        signSpeed *= 0.9f;
         
         if (isAccelerating || isReversing)
         {
-            float signSpeed = isReversing ? -0.5f : 0.5f;
-            float dirX = (float)Math.sin( -assets.car.getRotation().y * Math.PI / 180.0 ) * signSpeed;
-            float dirZ = (float)Math.cos( -assets.car.getRotation().y * Math.PI / 180.0 ) * signSpeed;
-            Vec3 newPosition = Vec3.add( assets.car.getPosition(), new Vec3( dirX, 0, dirZ ) );
-            assets.car.setPosition( newPosition );
+            signSpeed = isReversing ? -0.25f : 0.5f;
         }
+
+        float dirX = (float)Math.sin( -assets.car.getRotation().y * Math.PI / 180.0 ) * signSpeed;
+        float dirZ = (float)Math.cos( -assets.car.getRotation().y * Math.PI / 180.0 ) * signSpeed;
+        Vec3 newPosition = Vec3.add( assets.car.getPosition(), new Vec3( dirX, 0, dirZ ) );
+        assets.car.setPosition( newPosition );
     }
     
     private void updateCamera()
@@ -124,9 +113,34 @@ public class Game
 
         if (Vec3.distance( assets.car.getPosition(), assets.lap.getPosition() ) < lapChangeDistance)
         {
-            float x = (float)Math.random() * 10;
-            float z = (float)Math.random() * 10;
-            assets.lap.setPosition( new Vec3( x, 0, z ) );
+            lapFadeStartTime = System.currentTimeMillis();
+            setRandomPositionForLap();
         }
+        
+        /*if (lapFadeStartTime > 0)
+        {
+            lapOpacity = 1000.0f / (System.currentTimeMillis() - lapFadeStartTime);
+            System.out.println( "opacity: " + lapOpacity );
+        }
+        
+        if (System.currentTimeMillis() - lapFadeStartTime > 1000)
+        {
+            setRandomPositionForLap();
+            lapOpacity = 1;
+            lapFadeStartTime = 0;
+        }*/
+    }
+    
+    private void setRandomPositionForLap()
+    {
+        float x = (float)Math.max( (float)Math.random() * 20, 10 );
+        float z = (float)Math.max( (float)Math.random() * 20, 10 );
+        Vec3 oldPos = assets.lap.getPosition();
+        assets.lap.setPosition( new Vec3( oldPos.x + x, 0, oldPos.z + z ) );
+    }
+    
+    private void updateTimer()
+    {
+    
     }
 }

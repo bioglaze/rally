@@ -108,11 +108,11 @@ public class Model
         {
             String line = objContents[ lineNo ];
             
-            if (line.substring( 0, 2 ).equals( "o " ))
+            if (line.startsWith( "o " ))
             {
                 // New mesh begins, but since we currently only support one mesh, do nothing.
             }
-            else if (line.substring( 0, 2 ).equals( "v " ))
+            else if (line.startsWith( "v " ))
             {
                 String[] tokens = line.split( " " );
                 
@@ -122,7 +122,7 @@ public class Model
                 Vec3 v = new Vec3( x, y, z );
                 vertices.add( v );
             }
-            else if (line.substring( 0, 2 ).equals( "vt" ))
+            else if (line.startsWith( "vt" ))
             {
                 String[] tokens = line.split( " " );
                 
@@ -131,7 +131,7 @@ public class Model
                 Vec3 texCoord = new Vec3( u, v, 0 );
                 texCoords.add( texCoord );
             }
-            else if (line.substring( 0, 2 ).equals( "vn" ))
+            else if (line.startsWith( "vn" ))
             {
                 String[] tokens = line.split( " " );
                 float x = Float.parseFloat( tokens[ 1 ] );
@@ -140,14 +140,11 @@ public class Model
                 Vec3 normal = new Vec3( x, y, z );
                 normals.add( normal );
             }
-            else if (line.substring( 0, 2 ).equals( "f " ))
+            else if (line.startsWith( "f " ))
             {
                 String[] tokens = line.split( "/" );
                 Face face = new Face();
                 
-                //for (int i = 0; i < tokens.length; ++i)
-                //    System.out.println( "face token " + i + ": " + tokens[i] );
-
                 // .obj indices are one-based, so substracting 1 from all indices.
                 
                 String[] firstIndexTokens = tokens[ 0 ].split( " " );
