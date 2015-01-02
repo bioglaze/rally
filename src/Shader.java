@@ -1,6 +1,8 @@
 /*
   @author Timo Wiren
-  @date 2014-12-15
+  @date 2015-01-02
+ 
+  Note: Uniform locations not cached, but does not matter in a simple game like this.
 */
 import static org.lwjgl.opengl.GL20.*;
 import org.lwjgl.BufferUtils;
@@ -56,11 +58,22 @@ public class Shader
         mat44buffer.flip();
         glUniformMatrix4( glGetUniformLocation( programId, name ), false, mat44buffer );
     }
-    
+
+    public void setVector3( String name, float[] vector )
+    {
+        glUniform3f( glGetUniformLocation( programId, name ), vector[ 0 ], vector[ 1 ],
+                    vector[ 2 ] );
+    }
+
     public void setVector4( String name, float[] vector )
     {
         glUniform4f( glGetUniformLocation( programId, name ), vector[ 0 ], vector[ 1 ],
                      vector[ 2 ], vector[ 3 ] );
+    }
+    
+    public void setFloat( String name, float value )
+    {
+        glUniform1f( glGetUniformLocation( programId, name ), value );
     }
     
     private int compile( String source, int shaderType )

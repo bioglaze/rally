@@ -1,6 +1,6 @@
 /**
    @author Timo Wiren
-   @date 2015-01-01
+   @date 2015-01-02
  */
 public class Game
 {
@@ -22,8 +22,8 @@ public class Game
     private boolean isReversing = false;
     private double remainingLapTime = 5;
     private float signSpeed = 0;
-    private float lapOpacity = 1;
-    private float lapFadeStartTime = 0;
+    private long lapFadeStartTime;
+    private long mineExplodeTime;
 
     public Game( Renderer renderer )
     {
@@ -33,7 +33,7 @@ public class Game
     
     public void draw()
     {
-        assets.draw( renderer );
+        assets.draw( renderer, solveTimeBarWidth() );
     }
     
     public void update()
@@ -41,7 +41,7 @@ public class Game
         updateCarMovement();
         updateCamera();
         updateLap();
-        updateTimer();
+        updateMine();
     }
 
     public void doAction( InputAction action )
@@ -82,6 +82,11 @@ public class Game
     
     private void updateCarMovement()
     {
+        if (mineExplodeTime != 0)
+        {
+            return;
+        }
+        
         Vec3 rot = assets.car.getRotation();
         float newRotY = assets.car.getRotation().y + carDirection.y;
         assets.car.setRotation( new Vec3( rot.x, newRotY, rot.z ) );
@@ -111,36 +116,66 @@ public class Game
     {
         final float lapChangeDistance = 2;
 
-        if (Vec3.distance( assets.car.getPosition(), assets.lap.getPosition() ) < lapChangeDistance)
+        if (lapFadeStartTime == 0 && Vec3.distance( assets.car.getPosition(), assets.lap.getPosition() ) < lapChangeDistance)
         {
             lapFadeStartTime = System.currentTimeMillis();
-            setRandomPositionForLap();
         }
         
-        /*if (lapFadeStartTime > 0)
+        if (lapFadeStartTime > 0)
         {
-            lapOpacity = 1000.0f / (System.currentTimeMillis() - lapFadeStartTime);
-            System.out.println( "opacity: " + lapOpacity );
+            float lapOpacity = (float)(System.currentTimeMillis() - lapFadeStartTime) / 1000.0f;
+            lapOpacity = 1 - lapOpacity;
+            assets.lap.setOpacity( lapOpacity );
         }
         
-        if (System.currentTimeMillis() - lapFadeStartTime > 1000)
+        if (lapFadeStartTime > 0 && (System.currentTimeMillis() - lapFadeStartTime) > 1000)
         {
-            setRandomPositionForLap();
-            lapOpacity = 1;
+            setRandomPositionForModel( assets.lap );
+            assets.lap.setOpacity( 1 );
             lapFadeStartTime = 0;
-        }*/
+        }
     }
     
-    private void setRandomPositionForLap()
+    private void updateMine()
     {
-        float x = (float)Math.max( (float)Math.random() * 20, 10 );
-        float z = (float)Math.max( (float)Math.random() * 20, 10 );
-        Vec3 oldPos = assets.lap.getPosition();
-        assets.lap.setPosition( new Vec3( oldPos.x + x, 0, oldPos.z + z ) );
+        final float mineExplodeDistance = 2;
+        
+        if (mineExplodeTime == 0 && Vec3.distance( assets.car.getPosition(), assets.mine.getPosition() ) < mineExplodeDistance)
+        {
+            mineExplodeTime = System.currentTimeMillis();
+            setRandomPositionForModel( assets.mine );
+        }
+        
+        if (mineExplodeTime > 0)
+        {
+            //float carRedTint = (float)(System.currentTimeMillis() - mineExplodeTime) / 1000.0f;
+            //carRedTint = 1 - carRedTint;
+            assets.car.setTint( new Vec3( 1, 0, 0 ) );
+        }
+        
+        if (mineExplodeTime > 0 && (System.currentTimeMillis() - mineExplodeTime) > 1000)
+        {
+            assets.car.setTint( new Vec3( 1, 1, 1 ) );
+            mineExplodeTime = 0;
+        }
     }
-    
-    private void updateTimer()
+
+    private void setRandomPositionForModel( Model model )
     {
-    
+        float x = (float)Math.max( (float)Math.random() * 15, 10 );
+        float z = (float)Math.max( (float)Math.random() * 15, 10 );
+        Vec3 oldPos = model.getPosition();
+        model.setPosition( new Vec3( oldPos.x + x, 0, oldPos.z + z ) );
+    }
+
+    // Returns percentage.
+    private float solveTimeBarWidth()
+    {
+        if (lapFadeStartTime == 0)
+        {
+            return 1;
+        }
+        
+        return 1 - (float)(System.currentTimeMillis() - lapFadeStartTime) / 1000.f;
     }
 }

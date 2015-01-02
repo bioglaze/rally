@@ -1,6 +1,6 @@
 /**
    @author Timo Wiren
-   @date 2015-01-01
+   @date 2015-01-02
  */
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -44,13 +44,13 @@ public class Assets
         mine.setPosition( new Vec3( 0, 1, -10 ) );
     }
     
-    public void draw( Renderer renderer )
+    public void draw( Renderer renderer, float timeBarWidthPercentage )
     {
         renderer.draw( track, trackTexture );
         renderer.draw( car, carTexture );
         renderer.draw( lap, lapTexture );
         renderer.draw( mine, mineTexture );
-        renderer.draw( timeBarTexture, 20, 20, 300 - 40, 20 );
+        renderer.draw( timeBarTexture, 20, 20, (int)(timeBarWidthPercentage * 400), 20 );
     }
     
     private Model createModel( String objPath )

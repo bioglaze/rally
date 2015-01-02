@@ -1,6 +1,6 @@
 /**
    @author Timo Wiren
-   @date 2014-12-25
+   @date 2015-01-02
  */
 import java.util.ArrayList;
 import org.lwjgl.BufferUtils;
@@ -22,7 +22,9 @@ public class Model
     private Vec3 rotation = new Vec3( 0, 0, 0 );
     private float[] modelMatrix = new float[ 16 ];
     private float[] scaleMatrix = Matrix.makeScale( 1 );
-
+    private float opacity = 1;
+    private float[] tint = new float[] { 1, 1, 1 };
+    
     // Contains indices to an array of Vertex elements.
     private class Triangle
     {
@@ -73,7 +75,19 @@ public class Model
         modelMatrix = createModelMatrix();
     }
     
-    public void draw( Shader shader, float[] viewProjectionMatrix )
+    public void setOpacity( float opacity )
+    {
+        this.opacity = opacity;
+    }
+    
+    public void setTint( Vec3 tint )
+    {
+        this.tint[ 0 ] = tint.x;
+        this.tint[ 1 ] = tint.y;
+        this.tint[ 2 ] = tint.z;
+    }
+    
+    public void draw( Renderer renderer, Shader shader, float[] viewProjectionMatrix )
     {
         shader.use();
         shader.setMatrix44( "uViewProjectionMatrix", viewProjectionMatrix );
@@ -82,7 +96,16 @@ public class Model
         glEnableVertexAttribArray( 0 );
         glEnableVertexAttribArray( 1 );
         glEnableVertexAttribArray( 2 );
+        
+        if (opacity < 0.999f)
+        {
+            renderer.setBlendMode( Renderer.BlendMode.AlphaBlend );
+        }
+        
+        shader.setFloat( "uOpacity", opacity );
+        shader.setVector3( "uTint", tint );
         glDrawElements( GL_TRIANGLES, faceCount * 3, GL_UNSIGNED_SHORT, 0 );
+        renderer.setBlendMode( Renderer.BlendMode.None );
         glDisableVertexAttribArray( 1 );
         glDisableVertexAttribArray( 2 );
     }

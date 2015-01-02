@@ -1,6 +1,6 @@
 /*
   @author Timo Wiren
-  @date 2015-01-01
+  @date 2015-01-02
 */
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -21,6 +21,12 @@ import static org.lwjgl.opengl.GL30.*;
 
 public class Renderer
 {
+    public enum BlendMode
+    {
+        AlphaBlend,
+        None
+    }
+    
     private Shader shader = new Shader();
     private Shader modelShader = new Shader();
     private float[] viewMatrix = new float[ 16 ];
@@ -31,7 +37,7 @@ public class Renderer
     public void draw( Model model, Texture texture )
     {
         setTexture( texture );
-        model.draw( modelShader, viewProjection );
+        model.draw( this, modelShader, viewProjection );
     }
     
     public void draw( Texture texture, int x, int y, int width, int height )
@@ -133,6 +139,19 @@ public class Renderer
         viewProjection = Matrix.multiply( viewMatrix, perspMatrix );
     }
     
+    public void setBlendMode( BlendMode mode )
+    {
+        if (mode == BlendMode.None)
+        {
+            glDisable( GL_BLEND );
+        }
+        else if (mode == BlendMode.AlphaBlend)
+        {
+            glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+            glEnable( GL_BLEND );
+        }
+    }
+    
     private void generateQuadBuffers()
     {
         checkGLError( "GenerateQuadBuffers begin" );
@@ -158,8 +177,6 @@ public class Renderer
         glVertexAttribPointer( 0, 4, GL_FLOAT, false, 0, 0 );
         checkGLError( "GenerateQuadBuffers end" );
     }
-
-    // List<String> lines = Files.readAllLines(Paths.get(path), encoding);
     
     private String readFile( String path ) throws IOException
     {
