@@ -1,6 +1,6 @@
 /**
    @author Timo Wiren
-   @date 2015-01-02
+   @date 2015-01-04
  */
 public class Game
 {
@@ -39,9 +39,11 @@ public class Game
     public void update()
     {
         updateCarMovement();
+        updateTrackPosition();
         updateCamera();
         updateLap();
         updateMine();
+        updateCompass();
     }
 
     public void doAction( InputAction action )
@@ -82,18 +84,16 @@ public class Game
     
     private void updateCarMovement()
     {
-        if (mineExplodeTime != 0)
+        if (mineExplodeTime == 0)
         {
-            return;
+            Vec3 rot = assets.car.getRotation();
+            float newRotY = assets.car.getRotation().y + carDirection.y;
+            assets.car.setRotation( new Vec3( rot.x, newRotY, rot.z ) );
         }
         
-        Vec3 rot = assets.car.getRotation();
-        float newRotY = assets.car.getRotation().y + carDirection.y;
-        assets.car.setRotation( new Vec3( rot.x, newRotY, rot.z ) );
-
         signSpeed *= 0.9f;
         
-        if (isAccelerating || isReversing)
+        if (mineExplodeTime == 0 && isAccelerating || isReversing)
         {
             signSpeed = isReversing ? -0.25f : 0.5f;
         }
@@ -140,16 +140,17 @@ public class Game
     {
         final float mineExplodeDistance = 2;
         
-        if (mineExplodeTime == 0 && Vec3.distance( assets.car.getPosition(), assets.mine.getPosition() ) < mineExplodeDistance)
+        for (int i = 0; i < assets.mines.length; ++i)
         {
-            mineExplodeTime = System.currentTimeMillis();
-            setRandomPositionForModel( assets.mine );
+            if (mineExplodeTime == 0 && Vec3.distance( assets.car.getPosition(), assets.mines[ i ].getPosition() ) < mineExplodeDistance)
+            {
+                mineExplodeTime = System.currentTimeMillis();
+                setRandomPositionForModel( assets.mines[ i ] );
+            }
         }
         
         if (mineExplodeTime > 0)
         {
-            //float carRedTint = (float)(System.currentTimeMillis() - mineExplodeTime) / 1000.0f;
-            //carRedTint = 1 - carRedTint;
             assets.car.setTint( new Vec3( 1, 0, 0 ) );
         }
         
@@ -160,6 +161,21 @@ public class Game
         }
     }
 
+    private void updateTrackPosition()
+    {
+        assets.track.setPosition( Vec3.add( assets.car.getPosition(), new Vec3( -2, 5, -45 ) ) );
+        assets.track.setTexTranslation( -assets.car.getPosition().z / 55.0f, assets.car.getPosition().x / 55.0f);
+    }
+    
+    private void updateCompass()
+    {
+        Vec3 pos = Vec3.add( assets.car.getPosition(), new Vec3( -3, 10, 8 ));
+        assets.compass.setPosition( pos );
+        
+        float rot = 0;
+        assets.compass.setRotation( new Vec3( 0, rot, 0 ) );
+    }
+    
     private void setRandomPositionForModel( Model model )
     {
         float x = (float)Math.max( (float)Math.random() * 15, 10 );

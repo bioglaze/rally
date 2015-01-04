@@ -1,6 +1,6 @@
 /*
   @author Timo Wiren
-  @date 2015-01-02
+  @date 2015-01-04
  
   Note: Uniform locations not cached, but does not matter in a simple game like this.
 */
@@ -74,6 +74,11 @@ public class Shader
     public void setFloat( String name, float value )
     {
         glUniform1f( glGetUniformLocation( programId, name ), value );
+    }
+
+    public void setFloats( String name, float value1, float value2 )
+    {
+        glUniform2f( glGetUniformLocation( programId, name ), value1, value2 );
     }
     
     private int compile( String source, int shaderType )

@@ -53,13 +53,8 @@ public class Matrix
         
         for (int i = 0; i < 16; ++i)
         {
-            matrix[ i ] = 0;
+            matrix[ i ] = (i % 5 == 0) ? 1 : 0;
         }
-        
-        matrix[  0 ] = 1;
-        matrix[  5 ] = 1;
-        matrix[ 10 ] = 1;
-        matrix[ 15 ] = 1;
         
         return matrix;
     }

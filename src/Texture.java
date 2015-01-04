@@ -1,6 +1,6 @@
 /*
   @author Timo Wiren
-  @date 2015-01-02
+  @date 2015-01-04
 */
 import org.lwjgl.Sys;
 import org.lwjgl.opengl.*;
@@ -27,17 +27,10 @@ import java.awt.image.BufferedImage;
 import java.awt.Transparency;
 
 import org.lwjgl.BufferUtils;
-import static org.lwjgl.opengl.GL11.*;
 
 import static org.lwjgl.system.MemoryUtil.*;
-import static org.lwjgl.opengl.GL11.GL_RGBA;
-import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL12.*;
 
 public class Texture
 {
@@ -148,10 +141,10 @@ public class Texture
         id = glGenTextures();
         
         glBindTexture( GL_TEXTURE_2D, id );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
         glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, opaque ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, imageBuffer );
     }
 }

@@ -1,6 +1,6 @@
 /*
   @author Timo Wiren
-  @date 2015-01-02
+  @date 2015-01-04
 */
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -40,13 +40,15 @@ public class Renderer
         model.draw( this, modelShader, viewProjection );
     }
     
-    public void draw( Texture texture, int x, int y, int width, int height )
+    public void draw( Texture texture, int x, int y, int width, int height, Vec3 color )
     {
         setTexture( texture );
 
         shader.use();
         float[] scaleOffset = new float[] { width, height, x, y };
         shader.setVector4( "uScaleAndTranslation", scaleOffset );
+        float[] tint = new float[] { color.x, color.y, color.z, 1 };
+        shader.setVector4( "uTint", tint );
         
         glBindVertexArray( spriteVAO );
         glEnableVertexAttribArray( 0 );

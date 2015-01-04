@@ -1,13 +1,12 @@
 #version 410 core
 
 uniform sampler2D colorMap;
-uniform vec4 tintColor;
+uniform vec4 uTint;
 
 in vec2 vUV;
 out vec4 fragColor;
 
 void main()
 {
-    //fragColor = vec4( 0.0, 0.0, 0.0, 1.0 );
-    fragColor = texture( colorMap, vUV );// * tintColor;
+    fragColor = texture( colorMap, vUV ) * uTint;
 }

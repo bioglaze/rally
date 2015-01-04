@@ -1,6 +1,6 @@
 /**
    @author Timo Wiren
-   @date 2015-01-02
+   @date 2015-01-04
  */
 import java.util.ArrayList;
 import org.lwjgl.BufferUtils;
@@ -24,6 +24,14 @@ public class Model
     private float[] scaleMatrix = Matrix.makeScale( 1 );
     private float opacity = 1;
     private float[] tint = new float[] { 1, 1, 1 };
+    private float tx = 0;
+    private float ty = 0;
+    
+    public void setTexTranslation( float x, float y )
+    {
+        tx = x;
+        ty = y;
+    }
     
     // Contains indices to an array of Vertex elements.
     private class Triangle
@@ -104,6 +112,7 @@ public class Model
         
         shader.setFloat( "uOpacity", opacity );
         shader.setVector3( "uTint", tint );
+        shader.setFloats( "uTexTranslation", tx, ty );
         glDrawElements( GL_TRIANGLES, faceCount * 3, GL_UNSIGNED_SHORT, 0 );
         renderer.setBlendMode( Renderer.BlendMode.None );
         glDisableVertexAttribArray( 1 );
@@ -303,12 +312,8 @@ public class Model
             indexBuf[ i + 0 ] = (short)triangles.get( f ).indices[ 0 ];
             indexBuf[ i + 1 ] = (short)triangles.get( f ).indices[ 1 ];
             indexBuf[ i + 2 ] = (short)triangles.get( f ).indices[ 2 ];
-
-            //System.out.println( "triangle: " + indexBuf[ i + 0 ] + ", " + indexBuf[ i + 1 ] + ", " + indexBuf[ i + 2 ] );
-
             i += 3;
         }
-        //System.out.println( "vertices: " + vertices.size() );
         
         indexBuffer = BufferUtils.createShortBuffer( indexBuf.length );
         indexBuffer.put( indexBuf );
