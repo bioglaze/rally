@@ -1,6 +1,6 @@
 /**
    @author Timo Wiren
-   @date 2015-01-04
+   @date 2015-01-05
  */
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -21,6 +21,7 @@ public class Assets
     private Texture trackTexture = new Texture();
     private Texture carTexture = new Texture();
     private Texture mineTexture = new Texture();
+    private Texture compassTexture = new Texture();
     
     public void init()
     {
@@ -31,11 +32,13 @@ public class Assets
         mines[ 0 ] = createModel( "assets/mine.obj" );
         mines[ 1 ] = createModel( "assets/mine.obj" );
         mines[ 2 ] = createModel( "assets/mine.obj" );
+
         timeBarTexture.loadImage( "assets/white.png" );
         lapTexture.loadImage( "assets/lap.png" );
         trackTexture.loadImage( "assets/grass.jpg" );
         carTexture.loadImage( "assets/player.png" );
         mineTexture.loadImage( "assets/mine.png" );
+        compassTexture.loadImage( "assets/white.png" );
         
         car.setPosition( new Vec3( 0, 0, -15 ) );
         car.setRotation( new Vec3( 0, 0, -1 ) );
@@ -65,7 +68,7 @@ public class Assets
         int width = (int)(Math.max( timeBarWidthPercentage, 0.1f ) * 400);
         renderer.draw( timeBarTexture, 20, 20, width, 20, color );
 
-        renderer.draw( compass, mineTexture );
+        renderer.draw( compass, compassTexture );
     }
     
     private Model createModel( String objPath )

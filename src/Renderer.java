@@ -81,7 +81,15 @@ public class Renderer
                 errorStr = "GL_INVALID_OPERATION";
             }
             
-            System.out.println( "OpenGL error in " + info + ": " + errorStr );
+            System.out.println( "OpenGL error in " + info + ": " + errorStr + ". Stack trace:" );
+
+            for (int i = 2; i < Thread.currentThread().getStackTrace().length; ++i)
+            {
+                String className = Thread.currentThread().getStackTrace()[i].getClassName();
+                String methodName = Thread.currentThread().getStackTrace()[i].getMethodName();
+                System.out.println( className + ":" + methodName );
+            }
+            System.out.println("");
         }
     }
 

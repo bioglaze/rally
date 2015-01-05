@@ -1,6 +1,6 @@
 /**
    @author Timo Wiren
-   @date 2015-01-04
+   @date 2015-01-05
  */
 public class Game
 {
@@ -24,7 +24,8 @@ public class Game
     private float signSpeed = 0;
     private long lapFadeStartTime;
     private long mineExplodeTime;
-
+    private long timeBarAnimationStartTime;
+    
     public Game( Renderer renderer )
     {
         assets.init();
@@ -119,6 +120,7 @@ public class Game
         if (lapFadeStartTime == 0 && Vec3.distance( assets.car.getPosition(), assets.lap.getPosition() ) < lapChangeDistance)
         {
             lapFadeStartTime = System.currentTimeMillis();
+            timeBarAnimationStartTime = System.currentTimeMillis();
         }
         
         if (lapFadeStartTime > 0)
@@ -131,6 +133,10 @@ public class Game
         if (lapFadeStartTime > 0 && (System.currentTimeMillis() - lapFadeStartTime) > 1000)
         {
             setRandomPositionForModel( assets.lap );
+            setRandomPositionForModel( assets.mines[ 0 ] );
+            setRandomPositionForModel( assets.mines[ 1 ] );
+            setRandomPositionForModel( assets.mines[ 2 ] );
+
             assets.lap.setOpacity( 1 );
             lapFadeStartTime = 0;
         }
@@ -172,26 +178,42 @@ public class Game
         Vec3 pos = Vec3.add( assets.car.getPosition(), new Vec3( -3, 10, 8 ));
         assets.compass.setPosition( pos );
         
-        float rot = 0;
-        assets.compass.setRotation( new Vec3( 0, rot, 0 ) );
+        Vec3 dirFromCompassToLap = Vec3.subtract( assets.lap.getPosition(), assets.compass.getPosition() ).normalized();
+        float angleRad = (float)Math.atan2( (double)dirFromCompassToLap.z, (double)dirFromCompassToLap.x );
+        assets.compass.setRotation( new Vec3( 0, (float)Math.toDegrees( angleRad ), 0 ) );
     }
     
     private void setRandomPositionForModel( Model model )
     {
-        float x = (float)Math.max( (float)Math.random() * 15, 10 );
-        float z = (float)Math.max( (float)Math.random() * 15, 10 );
-        Vec3 oldPos = model.getPosition();
+        float x = (float)Math.random() * 10 - (float)Math.random() * 10;
+        float z = (float)Math.random() * 10 - (float)Math.random() * 10;
+        x *= Math.max( x, 5 );
+        z *= Math.max( z, 5 );
+        Vec3 oldPos = assets.lap.getPosition();
         model.setPosition( new Vec3( oldPos.x + x, 0, oldPos.z + z ) );
     }
 
-    // Returns percentage.
+    // Returns a percentage.
     private float solveTimeBarWidth()
     {
-        if (lapFadeStartTime == 0)
+        return 1 - lerp( 0, 1, 4, (System.currentTimeMillis() - timeBarAnimationStartTime) / 1000.0f );
+    }
+    
+    public static float lerp( float start, float target, float duration, float timeSinceStart )
+    {
+        float value = start;
+
+        if (timeSinceStart > 0.0f && timeSinceStart < duration)
         {
-            return 1;
+            final float range = target - start;
+            final float percent = timeSinceStart / duration;
+            value = start + (range * percent);
         }
-        
-        return 1 - (float)(System.currentTimeMillis() - lapFadeStartTime) / 1000.f;
+        else if (timeSinceStart >= duration)
+        {
+            value = target;
+        }
+
+        return value;
     }
 }
